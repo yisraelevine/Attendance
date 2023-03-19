@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link rel="icon" href="data:,">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Form</title>
+</head>
+<body style="display: none">
+    <span id="bsd">BS"D</span>
+    <div id="Heading"></div>
+    <form id="submit-form">
+        <input type="Date" name="date" aria-label="date">
+        <div>
+            <div class="loading-hide"></div>
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+    <style>
+        body{
+            flex-direction: column;
+            align-items: center;
+            color: #2b166a;
+            background-color: silver;
+        }
+        #bsd{
+            font-size: 12px;
+            font-weight: bold;
+        }
+        #Heading{
+            font-size: 30px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        form{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: max-content;
+            padding: 20px;
+            position: relative;
+            border: 2px #2b166a solid;
+            background-color: thistle;
+            border-radius: 10px;
+            box-shadow: 0px 0px 20px 10px #808080c2;
+        }
+        form input{
+            font-size: 30px;
+            padding: 5px 7px;
+            background-color: #f0d6ff;
+            border: 2px solid;
+            border-radius: 8px;
+            color: #610d1e;
+        }
+        form .loading-hide{
+            position: absolute;
+            top: 0;
+            display: none;
+            width: 100%;
+            height: 100%;
+            background-color: thistle;
+        }
+        form > input:first-child{
+            width: 100%;
+            box-sizing: border-box;
+            padding: 5px;
+            padding-left: 10px;
+            margin-bottom: 10px;
+        }
+        form > div{
+            position: relative;
+        }
+        form > button{
+            margin-top: 20px;
+            padding: 5px 50px;
+            font-size: 20px;
+            background-color: #514183;
+            color: white;
+            font-weight: bold;
+            letter-spacing: 5px;
+            font-family: monospace;
+            border: 0;
+            box-shadow: 0px 15px 20px 0px #808080ab;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        fieldset{
+            display: flex;
+            border-radius: 5px;
+        }
+        fieldset legend{
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        }
+        fieldset input{
+            width: 50%;
+        }
+        fieldset span{
+            width: 15px;
+            text-align: center;
+            align-self: center;
+            font-size: 25px;
+        }
+    </style>
+    <script>
+        const password = prompt('Password:', );
+        async function login(date) {
+            await fetch('https://helpful-tick-tiara.cyclic.app/auth/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ password, date })
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.querySelector('#Heading').innerText = data[0];
+                const dataRows = data[1].rows;
+                const dataRowsHead = dataRows[0].c;
+                const dataRowsMain = dataRows[dataRows.length - 1].c;
+                const form = document.getElementById('submit-form');
+                const dateInput = form.querySelector('input');
+                const fieldset = document.createElement('fieldset');
+                dateInput.value = date;
+                fieldset.innerHTML = `
+                <legend></legend>
+                <input type="time" name="ti" aria-label="ti">
+                <span></span>
+                <input type="time" name="to" aria-label="to">
+                `;
+                const fieldsetCon = form.querySelector('div');
+                for(let i = 1; i < dataRowsHead.length; i++){
+                    if(dataRowsHead[i] !== null){
+                        const fieldsetName = dataRowsHead[i].v;
+                        if(fieldsetName !== null){
+                            const node = fieldset.cloneNode(true);
+                            node.querySelector('legend').innerHTML = fieldsetName;
+                            const time = dataRowsMain[i].v.replaceAll(' ', '').split('-');
+                            node.querySelectorAll('input')[0].value = time[0];
+                            node.querySelectorAll('input')[1].value = time[1];
+                            fieldsetCon.appendChild(node);
+                        }
+                    }
+                }
+                form.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    const formData = new FormData();
+                    const fieldsets = form.querySelectorAll('fieldset');
+                    fieldsets.forEach((fieldset) => {
+                        const name = fieldset.querySelector('legend').textContent;
+                        const values = fieldset.querySelectorAll('input');
+                        formData.append(name, JSON.stringify({'ti': values[0].value, 'to': values[1].value}));
+                    }); 
+                    const response = await fetch('https://helpful-tick-tiara.cyclic.app/submit/', {
+                        method: 'POST',
+                        body: formData,
+                    });
+                });
+                document.body.style.display = 'flex';
+            })
+            .catch(err => {
+                location.reload();
+            })
+        }
+        login(new Date().toISOString().slice(0, 10));
+        document.querySelector('#submit-form input').addEventListener('input', function(){
+            async function updateData(date) {
+                document.querySelector('form .loading-hide').style.display = 'block';
+                await fetch('http://localhost/auth/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password, date })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    const dataRows = data[1].rows;
+                    const form = document.getElementById('submit-form');
+                    const fieldsetCon = form.querySelectorAll('fieldset');
+                    if(dataRows.length !== 1){
+                        const dataRowsHead = dataRows[0].c;
+                        const dataRowsMain = dataRows[dataRows.length - 1].c;
+                        for(let i = 1; i < dataRowsHead.length; i++){
+                            const node = fieldsetCon[i - 1].querySelectorAll('input');
+                            if(dataRowsHead[i] !== null){
+                                const fieldsetName = dataRowsHead[i - 1].v;
+                                if(fieldsetName !== null){
+                                    if(dataRowsMain[i] !== null){
+                                        const time = dataRowsMain[i].v.replaceAll(' ', '').split('-');
+                                        node[0].value = time[0];
+                                        if(time.length > 1){
+                                            node[1].value = time[1];
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        fieldsetCon.forEach(i => {
+                            i.querySelectorAll('input')[0].value = '';
+                            i.querySelectorAll('input')[1].value = '';
+                        });
+                    }
+                })
+                document.querySelector('form .loading-hide').style.display = 'none';
+            }
+            updateData(this.value);
+        });
+    </script>
+</body>
+</html>
