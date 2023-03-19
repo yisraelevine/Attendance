@@ -168,7 +168,7 @@
         document.querySelector('#submit-form input').addEventListener('input', function(){
             async function updateData(date) {
                 document.querySelector('form .loading-hide').style.display = 'block';
-                await fetch('http://localhost/auth/', {
+                await fetch('https://helpful-tick-tiara.cyclic.app/auth/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
