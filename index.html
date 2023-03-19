@@ -6,10 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Submit Form</title>
 </head>
-<body style="display: none">
+<body>
     <span id="bsd">BS"D</span>
     <div id="Heading"></div>
-    <form id="submit-form">
+    <form id="login-form">
+        <input type="text" name="passcode" aria-label="passcode">
+        <button type="submit">login</button>
+    </form>
+    <form id="submit-form" style="display: none">
         <input type="Date" name="date" aria-label="date">
         <div>
             <div class="loading-hide"></div>
@@ -18,6 +22,7 @@
     </form>
     <style>
         body{
+            display: flex;
             flex-direction: column;
             align-items: center;
             color: #2b166a;
@@ -105,7 +110,7 @@
         }
     </style>
     <script>
-        const password = prompt('Password:', );
+        let password;
         async function login(date) {
             await fetch('https://helpful-tick-tiara.cyclic.app/auth/', {
                 method: 'POST',
@@ -158,13 +163,18 @@
                         body: formData,
                     });
                 });
-                document.body.style.display = 'flex';
+                form.style.display = 'flex';
             })
             .catch(err => {
                 location.reload();
             })
         }
-        login(new Date().toISOString().slice(0, 10));
+        document.querySelector('#login-form').addEventListener('submit', function(){
+            event.preventDefault();
+            password = this.passcode.value;
+            this.remove();
+            login(new Date().toISOString().slice(0, 10));
+        });
         document.querySelector('#submit-form input').addEventListener('input', function(){
             async function updateData(date) {
                 document.querySelector('form .loading-hide').style.display = 'block';
