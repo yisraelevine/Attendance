@@ -176,6 +176,8 @@
                     event.preventDefault();
                     const formData = new FormData();
                     const fieldsets = form.querySelectorAll('fieldset');
+                    formData.append('className', document.querySelector('#Heading').innerText);
+                    formData.append('date', document.querySelector('#submit-form input').value);
                     fieldsets.forEach((fieldset) => {
                         const name = fieldset.querySelector('legend').textContent;
                         const values = fieldset.querySelectorAll('input');
