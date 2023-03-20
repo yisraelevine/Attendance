@@ -172,6 +172,11 @@
                         }
                     }
                 }
+                document.querySelectorAll('#submit-form input').forEach(el => {
+                    el.addEventListener('input', function(){
+                        document.querySelector('#submit-form button').style.backgroundColor = 'green';
+                    });
+                });
                 form.addEventListener('submit', async (event) => {
                     event.preventDefault();
                     const formData = new FormData();
@@ -187,6 +192,7 @@
                         method: 'POST',
                         body: formData,
                     });
+                    document.querySelector('#submit-form button').style.backgroundColor = '';
                 });
                 document.querySelector('#myLoadingAftPass').remove();
                 form.style.display = 'flex';
